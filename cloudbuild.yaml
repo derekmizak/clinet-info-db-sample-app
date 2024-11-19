@@ -1,31 +1,21 @@
 steps:
-  # Step 1: Fetch secrets from Secret Manager
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - '-c'
-      - |
-        echo "Fetching secrets..."
-        export POSTGRES_USER=$(gcloud secrets versions access latest --secret=POSTGRES_USER)
-        export POSTGRES_PASSWORD=$(gcloud secrets versions access latest --secret=POSTGRES_PASSWORD)
-        export POSTGRES_DB=$(gcloud secrets versions access latest --secret=POSTGRES_DB)
-        export DATABASE_SSL=$(gcloud secrets versions access latest --secret=DATABASE_SSL)
-        export DATABASE_URL=$(gcloud secrets versions access latest --secret=DATABASE_URL)
-        echo "Secrets fetched."
-
-  # Step 2: Install dependencies
+  # Step 1: Install dependencies
   - name: 'node:20'
     entrypoint: 'npm'
     args: ['install']
 
-  # Step 3: Run Sequelize migrations
+  # Step 2: Run Sequelize migrations with DATABASE_URL fetched from Secret Manager
   - name: 'node:20'
-    entrypoint: 'npx'
-    args: ['sequelize-cli', 'db:migrate']
-    env:
-      - 'DATABASE_URL=$DATABASE_URL'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Fetching DATABASE_URL from Secret Manager..."
+        DATABASE_URL=$(gcloud secrets versions access latest --secret=DATABASE_URL)
+        echo "Running migrations..."
+        DATABASE_URL=$DATABASE_URL npx sequelize-cli db:migrate
 
-  # Step 4: Deploy to Google App Engine
+  # Step 3: Deploy to Google App Engine
   - name: 'gcr.io/cloud-builders/gcloud'
     args: ['app', 'deploy', '--quiet']
 
