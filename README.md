@@ -92,6 +92,8 @@ npm start
 
 Visit the application at `http://localhost:8080`.
 
+List of visitors is displayed at `http://localhost:8080/logs`.
+
 ---
 
 ## **Google Cloud Deployment**
@@ -223,7 +225,7 @@ Visit your deployed application:
 ```
 https://<YOUR_PROJECT_ID>.appspot.com
 ```
-
+List of visitors is displayed at `https://<YOUR_PROJECT_ID>.appspot.com/logs`.
 ---
 
 ## **Cleanup**
