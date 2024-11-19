@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Visit Logs</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1 class="text-center">Visit Logs</h1>
+
+    <!-- Filter Form -->
+    <form id="filter-form" class="row g-3 mt-4">
+      <div class="col-md-3">
+        <label for="start-date" class="form-label">Start Date:</label>
+        <input type="date" id="start-date" class="form-control" name="start-date">
+      </div>
+      <div class="col-md-3">
+        <label for="end-date" class="form-label">End Date:</label>
+        <input type="date" id="end-date" class="form-control" name="end-date">
+      </div>
+      <div class="col-md-3">
+        <label for="records-per-page" class="form-label">Records Per Page:</label>
+        <select id="records-per-page" class="form-select">
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+          <option value="100">100</option>
+        </select>
+      </div>
+      <div class="col-md-3 d-flex align-items-end">
+        <button type="button" id="apply-filters" class="btn btn-primary w-100">Apply Filters</button>
+      </div>
+    </form>
+
+    <!-- Logs Table -->
+    <div class="table-responsive mt-4">
+      <table class="table table-striped table-hover">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>IP</th>
+            <th>User Agent</th>
+            <th>Visited At</th>
+          </tr>
+        </thead>
+        <tbody id="logs-tbody">
+          <!-- Logs will be dynamically loaded here -->
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="d-flex justify-content-between mt-4">
+      <button id="prev" class="btn btn-secondary">Previous Page</button>
+      <button id="next" class="btn btn-secondary">Next Page</button>
+    </div>
+  </div>
+
+  <script>
+    let currentPage = 1;
+
+    async function fetchLogs() {
+      const startDate = document.getElementById('start-date').value;
+      const endDate = document.getElementById('end-date').value;
+      const limit = document.getElementById('records-per-page').value;
+
+      const queryParams = new URLSearchParams({
+        page: currentPage,
+        limit,
+        ...(startDate ? { start_date: startDate } : {}),
+        ...(endDate ? { end_date: endDate } : {}),
+      });
+
+      try {
+        const response = await fetch(`/api/logs?${queryParams}`);
+        const data = await response.json();
+
+        const logsTbody = document.getElementById('logs-tbody');
+        logsTbody.innerHTML = '';
+
+        if (data.logs.length === 0) {
+          logsTbody.innerHTML = '<tr><td colspan="4" class="text-center">No logs found.</td></tr>';
+        } else {
+          data.logs.forEach((log, index) => {
+            logsTbody.innerHTML += `
+              <tr>
+                <td>${index + 1}</td>
+                <td>${log.ip}</td>
+                <td>${log.user_agent}</td>
+                <td>${new Date(log.visited_at).toLocaleString()}</td>
+              </tr>
+            `;
+          });
+        }
+      } catch (error) {
+        console.error('Error fetching logs:', error);
+        const logsTbody = document.getElementById('logs-tbody');
+        logsTbody.innerHTML = '<tr><td colspan="4" class="text-danger text-center">Error loading logs. Please try again later.</td></tr>';
+      }
+    }
+
+    document.getElementById('prev').addEventListener('click', () => {
+      if (currentPage > 1) {
+        currentPage--;
+        fetchLogs();
+      }
+    });
+
+    document.getElementById('next').addEventListener('click', () => {
+      currentPage++;
+      fetchLogs();
+    });
+
+    document.getElementById('apply-filters').addEventListener('click', () => {
+      currentPage = 1; // Reset to the first page when filters change
+      fetchLogs();
+    });
+
+    fetchLogs(); // Load logs on page load
+  </script>
+</body>
+</html>

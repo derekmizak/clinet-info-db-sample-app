@@ -1,0 +1,9 @@
+runtime: nodejs20
+instance_class: F1
+env: standard
+automatic_scaling:
+  target_cpu_utilization: 0.65
+  target_throughput_utilization: 0.75
+  max_instances: 2
+env_variables:
+  NODE_ENV: production

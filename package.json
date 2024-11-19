@@ -1,0 +1,25 @@
+{
+  "name": "simple-web-node",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "test": "node app.js",
+    "migrate": "npx sequelize-cli db:migrate --config config/config.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@google-cloud/secret-manager": "^5.6.0",
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "pg": "^8.13.1",
+    "request-ip": "^3.3.0",
+    "sequelize": "^6.37.5",
+    "sequelize-cli": "^6.6.2",
+    "user-agent": "^1.0.4"
+  }
+}
