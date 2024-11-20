@@ -166,6 +166,9 @@ You can choose a different region if desired.
    ```
 
 Secure postgress default user:
+
+**Note:** Replace `your_secure_password` with a secure password.
+
 ```bash
 gcloud sql users set-password postgres \
     --instance=my-postgres-instance \
